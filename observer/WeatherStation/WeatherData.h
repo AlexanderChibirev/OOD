@@ -13,6 +13,11 @@ struct SWeatherInfo
 	double temperature = 0;
 	double humidity = 0;
 	double pressure = 0;
+
+	double minValue = std::numeric_limits<double>::infinity();
+	double maxValue = -std::numeric_limits<double>::infinity();
+	unsigned countAcc = 0;
+	double accValue = 0;
 };
 
 class CDisplay: public IObserver<SWeatherInfo>
@@ -62,53 +67,37 @@ private:
 	}
 	void Counters(SWeatherInfo const& data)
 	{
-		m_accValueForHum += data.humidity;
-		++m_countAccForHum;
-		m_accValueForPress += data.pressure;
-		++m_countAccForPress;
-		m_accValueForTemp += data.temperature;
-		++m_countAccForTemp;
+		hum.accValue += data.humidity;
+		++hum.countAcc;
+		press.accValue += data.pressure;
+		++press.countAcc;
+		temp.accValue += data.temperature;
+		++temp.countAcc;
 	}
+	
 	void Update(SWeatherInfo const& data) override
 	{
 		Counters(data);
-		PrintStatistics("Humidity", m_accValueForHum, m_countAccForHum, GetMax(data.humidity, m_maxValueForHum), GetMin(data.humidity, m_minValueForHum));
-		PrintStatistics("Pressure", m_accValueForPress, m_countAccForPress, GetMax(data.pressure, m_maxValueForPress), GetMin(data.pressure, m_minValueForPress));
-		PrintStatistics("Temperature", m_accValueForTemp, m_countAccForTemp, GetMax(data.temperature, m_maxValueForTemp), GetMin(data.temperature, m_minValueForTemp));
+		PrintStatistics("Humidity", hum.accValue, hum.countAcc, GetMax(data.humidity, hum.maxValue), GetMin(data.humidity, hum.minValue));
+		PrintStatistics("Pressure", press.accValue, press.countAcc, GetMax(data.pressure, press.maxValue), GetMin(data.pressure, press.minValue));
+		PrintStatistics("Temperature", temp.accValue , temp.countAcc, GetMax(data.temperature, temp.maxValue), GetMin(data.temperature, temp.minValue));
 	}
-
-	double m_minValueForTemp = std::numeric_limits<double>::infinity();
-	double m_minValueForPress = std::numeric_limits<double>::infinity();
-	double m_minValueForHum = std::numeric_limits<double>::infinity();
-
-	double m_maxValueForTemp = -std::numeric_limits<double>::infinity();
-	double m_maxValueForPress = -std::numeric_limits<double>::infinity();
-	double m_maxValueForHum = -std::numeric_limits<double>::infinity();
-
-	double m_accValueForTemp = 0;
-	double m_accValueForPress = 0;
-	double m_accValueForHum = 0;
-
-	unsigned m_countAccForTemp = 0;
-	unsigned m_countAccForPress = 0;
-	unsigned m_countAccForHum = 0;
-
+	SWeatherInfo temp;
+	SWeatherInfo press;
+	SWeatherInfo hum;
 };
 
 class CWeatherData : public CObservable<SWeatherInfo>
 {
 public:
-	// Температура в градусах Цельсия
 	double GetTemperature()const
 	{
 		return m_temperature;
 	}
-	// Относительная влажность (0...100)
 	double GetHumidity()const
 	{
 		return m_humidity;
 	}
-	// Атмосферное давление (в мм.рт.ст)
 	double GetPressure()const
 	{
 		return m_pressure;

@@ -42,6 +42,10 @@ struct IFlyBehavior
 class FlyWithWings : public IFlyBehavior
 {
 public:
+	FlyWithWings() : m_flightCounter(0)
+	{
+
+	}
 	void Fly() override
 	{
 		m_flightCounter++;
@@ -95,6 +99,7 @@ public:
 		: m_quackBehavior(move(quackBehavior)), m_danceBehavior(move(danceBehavior))
 	{
 		assert(m_quackBehavior);
+		assert(m_danceBehavior);
 		SetFlyBehavior(move(flyBehavior));
 	}
 	void Quack() const
@@ -109,7 +114,7 @@ public:
 	{
 		m_flyBehavior->Fly();
 	}
-	virtual void Dance()
+	void Dance()
 	{
 		m_danceBehavior->Dance();
 	}
@@ -209,6 +214,8 @@ void PlayWithDuck(Duck & duck)
 void main()
 {
 	MallardDuck mallarDuck;
+	PlayWithDuck(mallarDuck);
+	PlayWithDuck(mallarDuck);
 	PlayWithDuck(mallarDuck);
 	RedheadDuck redheadDuck;
 	PlayWithDuck(redheadDuck);
